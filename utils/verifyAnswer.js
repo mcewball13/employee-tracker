@@ -5,10 +5,11 @@ const {
     viewEmpFunc,
     addRoleFunc,
     addEmpFunc,
+    exitFunc,
+    updEmpRoleFunc,
 } = require("../data/allFunctions");
 
 function verifyAnswer(selectedAction, initFunc) {
-    console.log(initFunc);
     switch (selectedAction) {
         case "viewDept":
             viewDeptFunc(selectedAction, initFunc);
@@ -29,7 +30,10 @@ function verifyAnswer(selectedAction, initFunc) {
             addEmpFunc(selectedAction, initFunc);
             break;
         case "updateEmpRole":
-            addDeptFunc(selectedAction, initFunc);
+            updEmpRoleFunc(selectedAction, initFunc);
+            break;
+        case "exit":
+            exitFunc()
             break;
 
         default:
