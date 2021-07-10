@@ -114,21 +114,25 @@ class AllFunctions {
             .catch((err) => console.log(err));
     }
 
-    updEmpRoleFunc(action, initFunc) {
-        inquirer.prompt(
-            {
-                type: "list",
-                name: "UpEmpInputVal",
-                message: "What Employee would you like to update?",
-                choices: listEmp(),
-            },
-            {
-                type: "list",
-                name: "UpEmpRoleInputVal",
-                message: "What role would you like for this Employee?",
-                choices: listRoles(),
-            }
-        );
+    async updEmpRoleFunc(action, initFunc) {
+        try {
+            inquirer.prompt(
+               {
+                    type: "list",
+                    name: "UpEmpInputVal",
+                    message: "What Employee would you like to update?",
+                    choices: await listEmp(),
+                },
+               {
+                    type: "list",
+                    name: "UpEmpRoleInputVal",
+                    message: "What role would you like for this Employee?",
+                    choices: await getSql(),
+                }
+            );
+        } catch (err) {
+            console.log(err);
+        }
     }
     // .then((answer) => {
     //     const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
@@ -144,36 +148,45 @@ class AllFunctions {
         process.exit(1);
     }
 }
-function listEmp() {
+async function listEmp() {
     const sql = viewEmp;
     var listArr = [];
-    let returnArr;
-    db.promise()
-        .query(sql)
-        .then(([rows, fields]) => {
-            for (let i = 0; i < rows.length; i++) {
-                listArr.push(`${rows[i].first_name} ${rows[i].last_name}`);
-            }
-            return listArr;
-        })
-        .then((listArr) => (returnArr = listArr));
-    return returnArr;
+    try {
+        await db
+            .promise()
+            .query(sql)
+            .then(([rows, fields]) => {
+                for (let i = 0; i < rows.length; i++) {
+                    listArr.push(`${rows[i].first_name} ${rows[i].last_name}`);
+                }
+            });
+    } catch (err) {
+        console.error(err);
+    }
+    return listArr;
 }
 
- function listRoles() {
-    const queries = getSql()
-    console.log(`The is inside list Roles ${queries}`);
-    // return rolesArr;
-}
-function getSql () {
+//  async function listRoles() {
+//      const queries = await getSql()
+//      try {
+//          await console.log(`The is inside list Roles ${queries}`)
+//      } catch (err) {
+//          console.error(err);
+//      };
+//     // return rolesArr;
+// }
+async function getSql () {
     const sql = viewRoles;
-    db.query(sql, (err, result) => {
-        const rolesArr = [];
-        for (let i = 0; i < result.length; i++) {
-            rolesArr.push(`${result[i].title}`);
-        }
-        console.log(`This is inside query function ${rolesArr}`);
-        return rolesArr;
-    });
+    let rolesArr =[];
+    try {
+        await db.promise().query(sql).then(([rows, fields]) => {
+            for (let i = 0; i < rows.length; i++) {
+                rolesArr.push(`${rows[i].title}`);
+            }
+        })
+    } catch (err) {
+        console.error(err);
+    }
+    return rolesArr;
 };
 module.exports = new AllFunctions();
