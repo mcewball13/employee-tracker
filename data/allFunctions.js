@@ -115,64 +115,65 @@ class AllFunctions {
     }
 
     updEmpRoleFunc(action, initFunc) {
-        const sql = viewEmp;
-        db.promise()
-            .query(sql)
-            .then(([rows, fields]) => {
-                inquirer.prompt(
-                    {
-                        type: "list",
-                        name: "UpEmpInputVal",
-                        message: "What Employee would you like to update?",
-                        choices: listEmp(rows),
-                    },
-                    {
-                        type: "list",
-                        name: "UpEmpInputVal",
-                        message: "What role would you like for this Employee?",
-                        choices: listRoles(),
-                    }
-                );
-            });
-        // .then((answer) => {
-        //     const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
-        //     const params = [answer.UpEmpInputVal];
-
-        //     db.query(sql, { name: answer.UpEmpInputVal }, (err, result) => {
-        //         console.table(result);
-        //         initFunc();
-        //     });
-        // });
+        inquirer.prompt(
+            {
+                type: "list",
+                name: "UpEmpInputVal",
+                message: "What Employee would you like to update?",
+                choices: listEmp(),
+            },
+            {
+                type: "list",
+                name: "UpEmpRoleInputVal",
+                message: "What role would you like for this Employee?",
+                choices: listRoles(),
+            }
+        );
     }
+    // .then((answer) => {
+    //     const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+    //     const params = [answer.UpEmpInputVal];
+
+    //     db.query(sql, { name: answer.UpEmpInputVal }, (err, result) => {
+    //         console.table(result);
+    //         initFunc();
+    //     });
+    // });
+
     exitFunc() {
         process.exit(1);
     }
 }
-function listEmp(rows) {
-    const listArr = [];
-    console.log(rows);
-    for (let i = 0; i < rows.length; i++) {
-        listArr.push(`${rows[i].first_name} ${rows[i].last_name}`);
-    }
-    console.log(listArr);
-
-    return listArr;
-}
-
-function listRoles() {
-    const sql = viewRoles;
-    const rolesArr = [];
+function listEmp() {
+    const sql = viewEmp;
+    var listArr = [];
+    let returnArr;
     db.promise()
         .query(sql)
-        .then((query) => {
-            for (let i = 0; i < query.length; i++) {
-                rolesArr.push(`${query[i]}`);
+        .then(([rows, fields]) => {
+            for (let i = 0; i < rows.length; i++) {
+                listArr.push(`${rows[i].first_name} ${rows[i].last_name}`);
             }
-            return rolesArr
+            return listArr;
         })
-        .then((rolesArr) => {
-            console.log(rolesArr);
-            return rolesArr;
-        });
+        .then((listArr) => (returnArr = listArr));
+    return returnArr;
 }
+
+ function listRoles() {
+    const queries = getSql()
+    console.log(`The is inside list Roles ${queries}`);
+    // return rolesArr;
+}
+function getSql () {
+    const sql = viewRoles;
+    db.query(sql, (err, result) => {
+        const rolesArr = [];
+        for (let i = 0; i < result.length; i++) {
+            rolesArr.push(`${result[i].title}`);
+        }
+        console.log(`This is inside query function ${rolesArr}`);
+        return rolesArr;
+    });
+};
 module.exports = new AllFunctions();
