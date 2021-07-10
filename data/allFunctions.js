@@ -8,6 +8,7 @@ const {
     viewDept,
     viewEmp,
 } = require("./queries");
+cTable = require('console.table');
 
 class AllFunctions {
     viewDeptFunc(action, initFunc) {
@@ -115,34 +116,52 @@ class AllFunctions {
     }
 
     async updEmpRoleFunc(action, initFunc) {
+        let roleId, empId;
+
         try {
-            inquirer.prompt(
-               {
+            await inquirer
+                .prompt({
                     type: "list",
-                    name: "UpEmpInputVal",
+                    name: "upEmpInputVal",
                     message: "What Employee would you like to update?",
                     choices: await listEmp(),
-                },
-               {
+                })
+                .then((answer) => {
+                    empId = [];
+                    const splitArr = answer.upEmpInputVal.split(` - `);
+                    splitArr.splice(0, 1);
+                    empId.push(splitArr[0]);
+                });
+            await inquirer
+                .prompt({
                     type: "list",
-                    name: "UpEmpRoleInputVal",
+                    name: "upEmpRoleInputVal",
                     message: "What role would you like for this Employee?",
                     choices: await listRoles(),
-                }
-            );
+                })
+                .then((answer) => {
+                    // reset roleId to 0
+                    roleId = [];
+                    const splitArr = answer.upEmpRoleInputVal.split(` - `);
+                    splitArr.splice(0, 1);
+                    roleId.push(splitArr[0]);
+                    // role = answer;
+                })
+                .then(() => {
+                    const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+                    const params = [roleId, empId];
+
+                    db.query(sql, params, (err, result) => {
+                        console.table(result);
+                        initFunc();
+                    });
+                });
         } catch (err) {
             console.log(err);
         }
-    }
-    // .then((answer) => {
-    //     const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
-    //     const params = [answer.UpEmpInputVal];
 
-    //     db.query(sql, { name: answer.UpEmpInputVal }, (err, result) => {
-    //         console.table(result);
-    //         initFunc();
-    //     });
-    // });
+    }
+    //
 
     exitFunc() {
         process.exit(1);
@@ -157,39 +176,32 @@ async function listEmp() {
             .query(sql)
             .then(([rows, fields]) => {
                 for (let i = 0; i < rows.length; i++) {
-                    listArr.push(`${rows[i].first_name} ${rows[i].last_name}`);
+                    listArr.push(
+                        `${rows[i].first_name} ${rows[i].last_name} - ${rows[i].id}`
+                    );
                 }
             });
     } catch (err) {
         console.error(err);
     }
-    console.log(`This is the listEmp Function`);
     return listArr;
 }
 
-//  async function listRoles() {
-    //      const queries = await getSql()
-    //      try {
-        //          await console.log(`The is inside list Roles ${queries}`)
-        //      } catch (err) {
-            //          console.error(err);
-            //      };
-            //     // return rolesArr;
-            // }
-            async function listRoles () {
-                const sql = viewRoles;
-                let rolesArr =[];
-                try {
-                    await db.promise().query(sql).then(([rows, fields]) => {
-                        for (let i = 0; i < rows.length; i++) {
-                            rolesArr.push(`${rows[i].title}`);
-                        }
-                    })
-                } catch (err) {
-                    console.error(err);
+async function listRoles() {
+    const sql = viewRoles;
+    let rolesArr = [];
+    try {
+        await db
+            .promise()
+            .query(sql)
+            .then(([rows, fields]) => {
+                for (let i = 0; i < rows.length; i++) {
+                    rolesArr.push(`${rows[i].title} - ${rows[i].id}`);
                 }
-                console.log(`This is the list listRoles Function`);
-                return rolesArr;
-            };
-            module.exports = new AllFunctions();
-            
+            });
+    } catch (err) {
+        console.error(err);
+    }
+    return rolesArr;
+}
+module.exports = new AllFunctions();
