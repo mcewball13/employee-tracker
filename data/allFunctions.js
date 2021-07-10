@@ -127,7 +127,7 @@ class AllFunctions {
                     type: "list",
                     name: "UpEmpRoleInputVal",
                     message: "What role would you like for this Employee?",
-                    choices: await getSql(),
+                    choices: await listRoles(),
                 }
             );
         } catch (err) {
@@ -163,30 +163,33 @@ async function listEmp() {
     } catch (err) {
         console.error(err);
     }
+    console.log(`This is the listEmp Function`);
     return listArr;
 }
 
 //  async function listRoles() {
-//      const queries = await getSql()
-//      try {
-//          await console.log(`The is inside list Roles ${queries}`)
-//      } catch (err) {
-//          console.error(err);
-//      };
-//     // return rolesArr;
-// }
-async function getSql () {
-    const sql = viewRoles;
-    let rolesArr =[];
-    try {
-        await db.promise().query(sql).then(([rows, fields]) => {
-            for (let i = 0; i < rows.length; i++) {
-                rolesArr.push(`${rows[i].title}`);
-            }
-        })
-    } catch (err) {
-        console.error(err);
-    }
-    return rolesArr;
-};
-module.exports = new AllFunctions();
+    //      const queries = await getSql()
+    //      try {
+        //          await console.log(`The is inside list Roles ${queries}`)
+        //      } catch (err) {
+            //          console.error(err);
+            //      };
+            //     // return rolesArr;
+            // }
+            async function listRoles () {
+                const sql = viewRoles;
+                let rolesArr =[];
+                try {
+                    await db.promise().query(sql).then(([rows, fields]) => {
+                        for (let i = 0; i < rows.length; i++) {
+                            rolesArr.push(`${rows[i].title}`);
+                        }
+                    })
+                } catch (err) {
+                    console.error(err);
+                }
+                console.log(`This is the list listRoles Function`);
+                return rolesArr;
+            };
+            module.exports = new AllFunctions();
+            
